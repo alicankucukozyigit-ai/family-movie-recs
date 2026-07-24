@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<section>
+  <div class="page-head">
+    <h1>Picks for {{ selected_names | join(", ") }}</h1>
+    <a class="btn-secondary" href="{{ url_for('pick') }}">Try again</a>
+  </div>
+  <p class="subtext">{{ mood_label }} · rated {{ age_limit }} or under</p>
+
+  {% if movies %}
+    <div class="movie-grid">
+      {% for movie in movies %}
+        <div class="movie-card">
+          {% if movie.poster %}
+            <img src="{{ movie.poster }}" alt="{{ movie.title }} poster" />
+          {% else %}
+            <div class="poster-placeholder">No image</div>
+          {% endif %}
+          <h3>{{ movie.title }}</h3>
+          <p class="badge">⭐ {{ "%.1f"|format(movie.rating) }}</p>
+          <p class="overview">{{ movie.overview }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No movies matched — try a different mood or fewer restrictions.</p>
+  {% endif %}
+</section>
+{% endblock %}

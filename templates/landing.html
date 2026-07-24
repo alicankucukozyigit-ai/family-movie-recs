@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Family Movie Night{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Stop arguing about what to watch.</h1>
+  <p>Add your family, tell us the mood, and we'll find something everyone can agree on — nothing above anyone's age rating, guaranteed.</p>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('signup') }}">Get started free</a>
+    <a class="btn-secondary" href="{{ url_for('login') }}">Log in</a>
+  </div>
+</section>
+<section class="how-it-works">
+  <div class="step">
+    <h3>1. Add your family</h3>
+    <p>Give each person an age rating limit and a few favorite genres.</p>
+  </div>
+  <div class="step">
+    <h3>2. Pick who's watching</h3>
+    <p>Choose tonight's crowd and a mood — funny, exciting, chill, and more.</p>
+  </div>
+  <div class="step">
+    <h3>3. Get your shortlist</h3>
+    <p>We find movies that fit everyone's limits and tastes.</p>
+  </div>
+</section>
+{% endblock %}

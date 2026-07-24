@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<section class="form-card">
+  <h1>Create your family account</h1>
+  <form method="POST">
+    <label>Email
+      <input type="email" name="email" required />
+    </label>
+    <label>Password
+      <input type="password" name="password" required minlength="8" />
+    </label>
+    <button class="btn" type="submit">Sign up</button>
+  </form>
+  <p class="form-footer">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+</section>
+{% endblock %}

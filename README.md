@@ -1,0 +1,38 @@
+# Family Movie Night
+
+Weekend-MVP web app that helps a family agree on what to watch: parents create
+an account, add profiles for each family member (age rating limit + favorite
+genres), then pick who's watching tonight plus a mood, and get an
+age-appropriate, taste-matched shortlist from TMDB.
+
+## Local setup
+
+```bash
+cd family-movie-recs
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # then fill in TMDB_API_KEY
+export $(cat .env | xargs)
+python app.py
+```
+
+App runs at http://localhost:5001
+
+Get a free TMDB API key (v3 auth) at https://www.themoviedb.org/settings/api
+after creating an account.
+
+## Deployment (Render)
+
+1. Push this repo to GitHub.
+2. In Render: New > Blueprint, point at the repo (`render.yaml` defines the
+   web service + free Postgres DB automatically).
+3. Set `TMDB_API_KEY` in the Render dashboard (Environment tab) — not
+   committed anywhere.
+4. Push to `main` auto-deploys.
+
+## Status
+
+MVP scope: email/password accounts, per-member age rating + favorite genres,
+mood picker, TMDB-backed recommendations. No streaming availability,
+watchlists, rating history, or social login in v1.

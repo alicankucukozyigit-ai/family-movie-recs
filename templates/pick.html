@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Pick a Movie{% endblock %}
+{% block content %}
+<section>
+  <h1>Who's watching tonight?</h1>
+  <form method="POST" action="{{ url_for('results') }}">
+    <div class="member-grid picker">
+      {% for member in members %}
+        <label class="member-tile checkbox-tile">
+          <input type="checkbox" name="member_ids" value="{{ member.id }}" />
+          <h3>{{ member.name }}</h3>
+          <p class="badge">Up to {{ member.max_rating }}</p>
+        </label>
+      {% endfor %}
+    </div>
+
+    <h2>What's the mood?</h2>
+    <div class="mood-grid">
+      {% for key, mood in moods.items() %}
+        <label class="mood-tile">
+          <input type="radio" name="mood" value="{{ key }}" {% if loop.first %}checked{% endif %} />
+          {{ mood.label }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <button class="btn" type="submit">Find movies</button>
+  </form>
+</section>
+{% endblock %}

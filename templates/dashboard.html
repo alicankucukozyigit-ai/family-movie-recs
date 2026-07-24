@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}My Family{% endblock %}
+{% block content %}
+<section>
+  <div class="page-head">
+    <h1>My Family</h1>
+    {% if members %}<a class="btn" href="{{ url_for('pick') }}">Pick a movie tonight</a>{% endif %}
+  </div>
+
+  {% if members %}
+    <div class="member-grid">
+      {% for member in members %}
+        <div class="member-tile">
+          <h3>{{ member.name }}</h3>
+          <p class="badge">Up to {{ member.max_rating }}</p>
+          <p class="genre-list">
+            {% for gid in member.genre_id_list() %}{{ genres.get(gid, gid) }}{{ ", " if not loop.last }}{% endfor %}
+          </p>
+          <form method="POST" action="{{ url_for('delete_member', member_id=member.id) }}">
+            <button class="btn-danger" type="submit">Remove</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No family members yet — add your first one below.</p>
+  {% endif %}
+
+  <section class="form-card">
+    <h2>Add a family member</h2>
+    <form method="POST" action="{{ url_for('add_member') }}">
+      <label>Name
+        <input type="text" name="name" required />
+      </label>
+      <label>Max content rating
+        <select name="max_rating">
+          {% for r in ratings %}
+            <option value="{{ r }}" {% if r == "PG-13" %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <fieldset>
+        <legend>Favorite genres</legend>
+        <div class="checkbox-grid">
+          {% for gid, gname in genres.items() %}
+            <label class="checkbox"><input type="checkbox" name="genres" value="{{ gid }}" /> {{ gname }}</label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <button class="btn" type="submit">Add member</button>
+    </form>
+  </section>
+</section>
+{% endblock %}
