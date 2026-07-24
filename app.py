@@ -162,10 +162,9 @@ def results():
     favorite_ids = set()
     for m in selected:
         favorite_ids.update(m.genre_id_list())
-    genre_filter = set(mood["genres"]) | favorite_ids
 
     try:
-        raw_movies = discover_movies(certification_lte=age_limit, genre_ids=list(genre_filter))
+        raw_movies = discover_movies(certification_lte=age_limit, genre_ids=mood["genres"])
     except RuntimeError:
         flash("Movie search isn't configured yet — missing TMDB_API_KEY.")
         return redirect(url_for("pick"))
