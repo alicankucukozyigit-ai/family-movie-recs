@@ -170,6 +170,49 @@ legend { color: var(--muted); font-size: 0.85rem; padding: 0 0.4rem; }
 .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
 .checkbox { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); flex-direction: row; }
 
+.favorites { border-top: 1px solid var(--border); margin-top: 0.75rem; padding-top: 0.75rem; text-align: left; }
+.favorites h4 { margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.favorite-list { list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.favorite-list li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+.favorite-list img { width: 28px; height: 42px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
+.favorite-list span { flex: 1; }
+.favorite-list .btn-danger { padding: 0.1rem 0.5rem; font-size: 0.75rem; }
+.add-favorite { position: relative; }
+.favorite-search-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+.favorite-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-top: 0.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.favorite-result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.favorite-result:hover { background: var(--bg); }
+
 .filters { padding: 1rem; margin: 1.5rem 0; display: flex; flex-wrap: wrap; gap: 1rem; }
 .filters label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); }
 .filters select, .filters input {

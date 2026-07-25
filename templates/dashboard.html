@@ -16,6 +16,30 @@
           <p class="genre-list">
             {% for gid in member.genre_id_list() %}{{ genres.get(gid, gid) }}{{ ", " if not loop.last }}{% endfor %}
           </p>
+
+          <div class="favorites">
+            <h4>Favorite Movies</h4>
+            {% if member.favorite_movies %}
+              <ul class="favorite-list">
+                {% for fav in member.favorite_movies %}
+                  <li>
+                    {% if fav.poster_path %}
+                      <img src="{{ poster_url(fav.poster_path, 'w92') }}" alt="{{ fav.title }} poster" />
+                    {% endif %}
+                    <span>{{ fav.title }}</span>
+                    <form method="POST" action="{{ url_for('delete_favorite', member_id=member.id, favorite_id=fav.id) }}">
+                      <button class="btn-danger" type="submit">×</button>
+                    </form>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            <div class="add-favorite" data-member-id="{{ member.id }}">
+              <input type="text" class="favorite-search-input" placeholder="Search a movie to add..." autocomplete="off" />
+              <div class="favorite-search-results"></div>
+            </div>
+          </div>
+
           <form method="POST" action="{{ url_for('delete_member', member_id=member.id) }}">
             <button class="btn-danger" type="submit">Remove</button>
           </form>

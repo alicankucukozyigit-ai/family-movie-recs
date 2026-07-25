@@ -34,5 +34,22 @@ class FamilyMember(db.Model):
     # Comma-separated TMDB genre IDs, e.g. "35,16,10751"
     favorite_genres = db.Column(db.String(255), nullable=False, default="")
 
+    favorite_movies = db.relationship(
+        "FavoriteMovie", backref="member", cascade="all, delete-orphan", order_by="FavoriteMovie.id"
+    )
+
     def genre_id_list(self):
         return [g for g in self.favorite_genres.split(",") if g]
+
+
+class FavoriteMovie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("family_member.id"), nullable=False)
+    tmdb_id = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    poster_path = db.Column(db.String(255), nullable=True)
+    # Comma-separated TMDB genre IDs, captured from the search result at add-time
+    genre_ids = db.Column(db.String(255), nullable=False, default="")
+
+    def genre_id_list(self):
+        return [g for g in self.genre_ids.split(",") if g]

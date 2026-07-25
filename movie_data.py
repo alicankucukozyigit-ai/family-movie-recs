@@ -77,6 +77,22 @@ def discover_movies(certification_lte, genre_ids, min_rating=None, year_from=Non
     return resp.json().get("results", [])
 
 
+def search_movies(query, page=1):
+    """Call TMDB search/movie for a free-text title search."""
+    if not TMDB_API_KEY:
+        raise RuntimeError("TMDB_API_KEY is not set")
+
+    params = {
+        "api_key": TMDB_API_KEY,
+        "query": query,
+        "include_adult": "false",
+        "page": page,
+    }
+    resp = requests.get(f"{TMDB_BASE_URL}/search/movie", params=params, timeout=10)
+    resp.raise_for_status()
+    return resp.json().get("results", [])
+
+
 def poster_url(path, size="w342"):
     if not path:
         return None

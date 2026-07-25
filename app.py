@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import (
     LoginManager,
     current_user,
@@ -9,7 +9,7 @@ from flask_login import (
     logout_user,
 )
 
-from models import FamilyMember, User, db
+from models import FamilyMember, FavoriteMovie, User, db
 from movie_data import (
     GENRES,
     MOODS,
@@ -17,6 +17,7 @@ from movie_data import (
     discover_movies,
     poster_url,
     score_and_rank,
+    search_movies,
     strictest_rating,
 )
 
@@ -31,6 +32,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
+app.jinja_env.globals["poster_url"] = poster_url
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -135,6 +137,66 @@ def delete_member(member_id):
     return redirect(url_for("dashboard"))
 
 
+@app.route("/api/movie-search")
+@login_required
+def movie_search():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify([])
+    try:
+        results = search_movies(query)
+    except Exception:
+        return jsonify([])
+    movies = [
+        {
+            "tmdb_id": m.get("id"),
+            "title": m.get("title"),
+            "year": (m.get("release_date") or "")[:4],
+            "poster_path": m.get("poster_path"),
+            "genre_ids": ",".join(str(g) for g in m.get("genre_ids", [])),
+        }
+        for m in results[:8]
+    ]
+    return jsonify(movies)
+
+
+@app.route("/members/<int:member_id>/favorites/add", methods=["POST"])
+@login_required
+def add_favorite(member_id):
+    member = db.session.get(FamilyMember, member_id)
+    if not member or member.user_id != current_user.id:
+        flash("Family member not found.")
+        return redirect(url_for("dashboard"))
+
+    tmdb_id = request.form.get("tmdb_id", "").strip()
+    title = request.form.get("title", "").strip()
+    if not tmdb_id.isdigit() or not title:
+        return redirect(url_for("dashboard"))
+
+    tmdb_id = int(tmdb_id)
+    if not any(f.tmdb_id == tmdb_id for f in member.favorite_movies):
+        favorite = FavoriteMovie(
+            member_id=member.id,
+            tmdb_id=tmdb_id,
+            title=title,
+            poster_path=request.form.get("poster_path") or None,
+            genre_ids=request.form.get("genre_ids", ""),
+        )
+        db.session.add(favorite)
+        db.session.commit()
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/members/<int:member_id>/favorites/<int:favorite_id>/delete", methods=["POST"])
+@login_required
+def delete_favorite(member_id, favorite_id):
+    favorite = db.session.get(FavoriteMovie, favorite_id)
+    if favorite and favorite.member_id == member_id and favorite.member.user_id == current_user.id:
+        db.session.delete(favorite)
+        db.session.commit()
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/pick")
 @login_required
 def pick():
@@ -170,6 +232,8 @@ def results():
     favorite_ids = set()
     for m in selected:
         favorite_ids.update(m.genre_id_list())
+        for fav in m.favorite_movies:
+            favorite_ids.update(fav.genre_id_list())
 
     try:
         raw_movies = discover_movies(
