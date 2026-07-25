@@ -131,6 +131,32 @@ def add_member():
     return redirect(url_for("dashboard"))
 
 
+@app.route("/members/<int:member_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_member(member_id):
+    member = db.session.get(FamilyMember, member_id)
+    if not member or member.user_id != current_user.id:
+        flash("Family member not found.")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        max_rating = request.form.get("max_rating", "PG-13")
+        genre_ids = request.form.getlist("genres")
+        if not name:
+            flash("Name is required.")
+            return render_template("edit_member.html", member=member, genres=GENRES, ratings=RATING_ORDER)
+        if max_rating not in RATING_ORDER:
+            max_rating = "PG-13"
+        member.name = name
+        member.max_rating = max_rating
+        member.favorite_genres = ",".join(genre_ids)
+        db.session.commit()
+        return redirect(url_for("dashboard"))
+
+    return render_template("edit_member.html", member=member, genres=GENRES, ratings=RATING_ORDER)
+
+
 @app.route("/members/<int:member_id>/delete", methods=["POST"])
 @login_required
 def delete_member(member_id):
@@ -288,6 +314,7 @@ def recommended_results():
             "poster": poster_url(m.get("poster_path")),
             "poster_path": m.get("poster_path") or "",
             "genre_ids": ",".join(str(g) for g in m.get("genre_ids", [])),
+            "release_date": m.get("release_date") or "",
         }
         for m in ranked
     ]
@@ -368,6 +395,7 @@ def results():
             "poster": poster_url(m.get("poster_path")),
             "poster_path": m.get("poster_path") or "",
             "genre_ids": ",".join(str(g) for g in m.get("genre_ids", [])),
+            "release_date": m.get("release_date") or "",
         }
         for m in ranked
     ]

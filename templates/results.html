@@ -16,13 +16,26 @@
   </p>
 
   {% if movies %}
+    <div class="results-toolbar">
+      <label>Sort by
+        <select id="sort-select">
+          <option value="default" selected>Best Match</option>
+          <option value="rating">Highest Rated</option>
+          <option value="date">Newest</option>
+          <option value="title">Alphabetical</option>
+        </select>
+      </label>
+    </div>
     <div class="movie-grid">
       {% for movie in movies %}
         <div class="movie-card"
              data-tmdb-id="{{ movie.tmdb_id }}"
              data-title="{{ movie.title }}"
              data-poster-path="{{ movie.poster_path }}"
-             data-genre-ids="{{ movie.genre_ids }}">
+             data-genre-ids="{{ movie.genre_ids }}"
+             data-rating="{{ movie.rating }}"
+             data-release-date="{{ movie.release_date }}"
+             data-original-index="{{ loop.index0 }}">
           {% if movie.poster %}
             <img src="{{ movie.poster }}" alt="{{ movie.title }} poster" />
           {% else %}

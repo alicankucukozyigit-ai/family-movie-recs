@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ member.name }}{% endblock %}
+{% block content %}
+<section class="form-card">
+  <h1>Edit {{ member.name }}</h1>
+  <form method="POST" action="{{ url_for('edit_member', member_id=member.id) }}">
+    <label>Name
+      <input type="text" name="name" value="{{ member.name }}" required />
+    </label>
+    <label>Max content rating
+      <select name="max_rating">
+        {% for r in ratings %}
+          <option value="{{ r }}" {% if r == member.max_rating %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <fieldset>
+      <legend>Favorite genres</legend>
+      <div class="checkbox-grid">
+        {% set member_genres = member.genre_id_list() %}
+        {% for gid, gname in genres.items() %}
+          <label class="checkbox">
+            <input type="checkbox" name="genres" value="{{ gid }}" {% if gid in member_genres %}checked{% endif %} />
+            {{ gname }}
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <button class="btn" type="submit">Save changes</button>
+  </form>
+  <p class="form-footer"><a href="{{ url_for('dashboard') }}">Cancel</a></p>
+</section>
+{% endblock %}

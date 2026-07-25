@@ -69,3 +69,34 @@ document.querySelectorAll(".movie-card").forEach(function (card) {
     });
   });
 });
+
+var sortSelect = document.getElementById("sort-select");
+if (sortSelect) {
+  var movieGrid = document.querySelector(".movie-grid");
+  var sortKeyFor = {
+    default: function (card) { return Number(card.dataset.originalIndex); },
+    rating: function (card) { return -Number(card.dataset.rating); },
+    title: function (card) { return card.dataset.title.toLowerCase(); },
+  };
+
+  sortSelect.addEventListener("change", function () {
+    var mode = sortSelect.value;
+    var cards = Array.prototype.slice.call(movieGrid.querySelectorAll(".movie-card"));
+
+    cards.sort(function (a, b) {
+      if (mode === "date") {
+        var dateA = a.dataset.releaseDate || "";
+        var dateB = b.dataset.releaseDate || "";
+        return dateB.localeCompare(dateA);
+      }
+      var keyFn = sortKeyFor[mode] || sortKeyFor.default;
+      var keyA = keyFn(a);
+      var keyB = keyFn(b);
+      if (keyA < keyB) return -1;
+      if (keyA > keyB) return 1;
+      return 0;
+    });
+
+    cards.forEach(function (card) { movieGrid.appendChild(card); });
+  });
+}
