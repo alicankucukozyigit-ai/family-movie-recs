@@ -15,11 +15,14 @@ from movie_data import (
     GENRES,
     MOODS,
     RATING_ORDER,
+    compute_genre_weights,
     discover_movies,
     poster_url,
     score_and_rank,
+    score_by_affinity,
     search_movies,
     strictest_rating,
+    top_genres,
 )
 
 app = Flask(__name__)
@@ -231,6 +234,75 @@ def rate_movie():
         db.session.add(rating)
     db.session.commit()
     return jsonify({"status": "ok"})
+
+
+@app.route("/recommended")
+@login_required
+def recommended():
+    if not current_user.members:
+        flash("Add at least one family member before getting recommendations.")
+        return redirect(url_for("dashboard"))
+    return render_template("recommended.html", members=current_user.members)
+
+
+@app.route("/recommended/results", methods=["POST"])
+@login_required
+def recommended_results():
+    member_ids = request.form.getlist("member_ids")
+    selected = [m for m in current_user.members if str(m.id) in member_ids]
+    if not selected:
+        flash("Pick at least one family member.")
+        return redirect(url_for("recommended"))
+
+    age_limit = strictest_rating([m.max_rating for m in selected])
+    genre_weights = compute_genre_weights(selected)
+    genres = top_genres(genre_weights)
+
+    if not genres:
+        fallback = set()
+        for m in selected:
+            fallback.update(m.genre_id_list())
+        genres = list(fallback)
+        if not genres:
+            flash("Rate a few movies or add favorites to sharpen your picks!")
+
+    try:
+        raw_movies = discover_movies(certification_lte=age_limit, genre_ids=genres)
+    except RuntimeError:
+        flash("Movie search isn't configured yet — missing TMDB_API_KEY.")
+        return redirect(url_for("recommended"))
+    except Exception:
+        flash("Couldn't reach the movie database right now. Please try again.")
+        return redirect(url_for("recommended"))
+
+    disliked_tmdb_ids = {
+        r.tmdb_id for m in selected for r in m.ratings if not r.thumbs_up
+    }
+    ranked = score_by_affinity(raw_movies, genre_weights, disliked_tmdb_ids=disliked_tmdb_ids)
+    movies = [
+        {
+            "tmdb_id": m.get("id"),
+            "title": m.get("title"),
+            "overview": m.get("overview"),
+            "rating": m.get("vote_average"),
+            "poster": poster_url(m.get("poster_path")),
+            "poster_path": m.get("poster_path") or "",
+            "genre_ids": ",".join(str(g) for g in m.get("genre_ids", [])),
+        }
+        for m in ranked
+    ]
+
+    return render_template(
+        "results.html",
+        movies=movies,
+        members=selected,
+        age_limit=age_limit,
+        mood_label="Recommended for You",
+        selected_names=[m.name for m in selected],
+        min_rating=None,
+        year_from=None,
+        year_to=None,
+    )
 
 
 @app.route("/pick")

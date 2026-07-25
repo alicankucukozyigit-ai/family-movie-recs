@@ -13,6 +13,7 @@
       {% if current_user.is_authenticated %}
         <a href="{{ url_for('dashboard') }}">My Family</a>
         <a href="{{ url_for('pick') }}">Pick a Movie</a>
+        <a href="{{ url_for('recommended') }}">For You</a>
         <a href="{{ url_for('logout') }}">Log out</a>
       {% else %}
         <a href="{{ url_for('login') }}">Log in</a>

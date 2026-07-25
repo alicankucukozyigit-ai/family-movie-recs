@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Recommended for You{% endblock %}
+{% block content %}
+<section>
+  <h1>Recommended for You</h1>
+  <p class="subtext">Picks get sharper as your family rates more movies and adds favorites.</p>
+  <form method="POST" action="{{ url_for('recommended_results') }}">
+    <div class="member-grid picker">
+      {% for member in members %}
+        <label class="member-tile checkbox-tile">
+          <input type="checkbox" name="member_ids" value="{{ member.id }}" />
+          <h3>{{ member.name }}</h3>
+          <p class="badge">Up to {{ member.max_rating }}</p>
+        </label>
+      {% endfor %}
+    </div>
+
+    <button class="btn" type="submit">Show my recommendations</button>
+  </form>
+</section>
+{% endblock %}
