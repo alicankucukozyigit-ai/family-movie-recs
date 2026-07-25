@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import (
@@ -9,7 +10,7 @@ from flask_login import (
     logout_user,
 )
 
-from models import FamilyMember, FavoriteMovie, User, db
+from models import FamilyMember, FavoriteMovie, Rating, User, db
 from movie_data import (
     GENRES,
     MOODS,
@@ -197,6 +198,41 @@ def delete_favorite(member_id, favorite_id):
     return redirect(url_for("dashboard"))
 
 
+@app.route("/ratings/rate", methods=["POST"])
+@login_required
+def rate_movie():
+    data = request.get_json(silent=True) or {}
+    member_id = str(data.get("member_id", ""))
+    tmdb_id = str(data.get("tmdb_id", ""))
+    title = (data.get("title") or "").strip()
+    thumbs_up = str(data.get("thumbs_up")) == "1"
+
+    if not member_id.isdigit() or not tmdb_id.isdigit() or not title:
+        return jsonify({"error": "invalid"}), 400
+
+    member = db.session.get(FamilyMember, int(member_id))
+    if not member or member.user_id != current_user.id:
+        return jsonify({"error": "not found"}), 404
+
+    tmdb_id = int(tmdb_id)
+    rating = Rating.query.filter_by(member_id=member.id, tmdb_id=tmdb_id).first()
+    if rating:
+        rating.thumbs_up = thumbs_up
+        rating.updated_at = datetime.utcnow()
+    else:
+        rating = Rating(
+            member_id=member.id,
+            tmdb_id=tmdb_id,
+            title=title,
+            poster_path=data.get("poster_path") or None,
+            genre_ids=data.get("genre_ids", ""),
+            thumbs_up=thumbs_up,
+        )
+        db.session.add(rating)
+    db.session.commit()
+    return jsonify({"status": "ok"})
+
+
 @app.route("/pick")
 @login_required
 def pick():
@@ -253,10 +289,13 @@ def results():
     ranked = score_and_rank(raw_movies, favorite_ids)
     movies = [
         {
+            "tmdb_id": m.get("id"),
             "title": m.get("title"),
             "overview": m.get("overview"),
             "rating": m.get("vote_average"),
             "poster": poster_url(m.get("poster_path")),
+            "poster_path": m.get("poster_path") or "",
+            "genre_ids": ",".join(str(g) for g in m.get("genre_ids", [])),
         }
         for m in ranked
     ]
@@ -264,6 +303,7 @@ def results():
     return render_template(
         "results.html",
         movies=movies,
+        members=selected,
         age_limit=age_limit,
         mood_label=mood["label"],
         selected_names=[m.name for m in selected],

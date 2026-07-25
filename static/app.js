@@ -41,3 +41,31 @@ document.querySelectorAll(".add-favorite").forEach(function (container) {
     }, 300);
   });
 });
+
+document.querySelectorAll(".movie-card").forEach(function (card) {
+  var memberInput = card.querySelector(".rate-member-select");
+  card.querySelectorAll(".rate-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var payload = {
+        member_id: memberInput.value,
+        tmdb_id: card.dataset.tmdbId,
+        title: card.dataset.title,
+        poster_path: card.dataset.posterPath,
+        genre_ids: card.dataset.genreIds,
+        thumbs_up: btn.dataset.thumb,
+      };
+      fetch("/ratings/rate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).then(function (r) {
+        if (r.ok) {
+          card.querySelectorAll(".rate-btn").forEach(function (b) {
+            b.classList.remove("active");
+          });
+          btn.classList.add("active");
+        }
+      });
+    });
+  });
+});

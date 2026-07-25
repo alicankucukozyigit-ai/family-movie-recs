@@ -18,7 +18,11 @@
   {% if movies %}
     <div class="movie-grid">
       {% for movie in movies %}
-        <div class="movie-card">
+        <div class="movie-card"
+             data-tmdb-id="{{ movie.tmdb_id }}"
+             data-title="{{ movie.title }}"
+             data-poster-path="{{ movie.poster_path }}"
+             data-genre-ids="{{ movie.genre_ids }}">
           {% if movie.poster %}
             <img src="{{ movie.poster }}" alt="{{ movie.title }} poster" />
           {% else %}
@@ -27,6 +31,17 @@
           <h3>{{ movie.title }}</h3>
           <p class="badge">⭐ {{ "%.1f"|format(movie.rating) }}</p>
           <p class="overview">{{ movie.overview }}</p>
+          <div class="rate-row">
+            {% if members|length > 1 %}
+              <select class="rate-member-select">
+                {% for m in members %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}
+              </select>
+            {% else %}
+              <input type="hidden" class="rate-member-select" value="{{ members[0].id }}" />
+            {% endif %}
+            <button type="button" class="rate-btn thumbs-up" data-thumb="1">👍</button>
+            <button type="button" class="rate-btn thumbs-down" data-thumb="0">👎</button>
+          </div>
         </div>
       {% endfor %}
     </div>

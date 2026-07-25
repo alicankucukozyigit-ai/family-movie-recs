@@ -37,6 +37,9 @@ class FamilyMember(db.Model):
     favorite_movies = db.relationship(
         "FavoriteMovie", backref="member", cascade="all, delete-orphan", order_by="FavoriteMovie.id"
     )
+    ratings = db.relationship(
+        "Rating", backref="member", cascade="all, delete-orphan", order_by="Rating.id"
+    )
 
     def genre_id_list(self):
         return [g for g in self.favorite_genres.split(",") if g]
@@ -50,6 +53,22 @@ class FavoriteMovie(db.Model):
     poster_path = db.Column(db.String(255), nullable=True)
     # Comma-separated TMDB genre IDs, captured from the search result at add-time
     genre_ids = db.Column(db.String(255), nullable=False, default="")
+
+    def genre_id_list(self):
+        return [g for g in self.genre_ids.split(",") if g]
+
+
+class Rating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("family_member.id"), nullable=False)
+    tmdb_id = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    poster_path = db.Column(db.String(255), nullable=True)
+    # Comma-separated TMDB genre IDs, captured from the results card at rate-time
+    genre_ids = db.Column(db.String(255), nullable=False, default="")
+    thumbs_up = db.Column(db.Boolean, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def genre_id_list(self):
         return [g for g in self.genre_ids.split(",") if g]

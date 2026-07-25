@@ -233,3 +233,26 @@ legend { color: var(--muted); font-size: 0.85rem; padding: 0 0.4rem; }
   display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.8rem;
 }
 .overview { color: var(--muted); font-size: 0.8rem; text-align: left; }
+
+.rate-row { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+.rate-member-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.4rem;
+  color: var(--text);
+  font-size: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+.rate-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.rate-btn.thumbs-up.active { background: #1f4d2e; border-color: #2f7a45; }
+.rate-btn.thumbs-down.active { background: #4d1f1f; border-color: #7a2f2f; }
