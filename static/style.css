@@ -170,6 +170,18 @@ legend { color: var(--muted); font-size: 0.85rem; padding: 0 0.4rem; }
 .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
 .checkbox { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); flex-direction: row; }
 
+.filters { padding: 1rem; margin: 1.5rem 0; display: flex; flex-wrap: wrap; gap: 1rem; }
+.filters label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); }
+.filters select, .filters input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  width: 140px;
+}
+
 .subtext { color: var(--muted); margin-top: -0.5rem; }
 
 .movie-card img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; }

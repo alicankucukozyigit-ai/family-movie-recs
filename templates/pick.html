@@ -24,6 +24,24 @@
       {% endfor %}
     </div>
 
+    <fieldset class="filters">
+      <legend>Filters (optional)</legend>
+      <label>Minimum rating
+        <select name="min_rating">
+          <option value="">Any</option>
+          <option value="6">6+</option>
+          <option value="7">7+</option>
+          <option value="8">8+</option>
+        </select>
+      </label>
+      <label>Released from
+        <input type="number" name="year_from" min="1900" max="2030" placeholder="e.g. 2015" />
+      </label>
+      <label>Released to
+        <input type="number" name="year_to" min="1900" max="2030" placeholder="e.g. 2026" />
+      </label>
+    </fieldset>
+
     <button class="btn" type="submit">Find movies</button>
   </form>
 </section>

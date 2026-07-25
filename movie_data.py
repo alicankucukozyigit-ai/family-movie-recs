@@ -49,8 +49,8 @@ def strictest_rating(ratings):
     return RATING_ORDER[min(indices)]
 
 
-def discover_movies(certification_lte, genre_ids, page=1):
-    """Call TMDB discover/movie with an age-rating cap and genre filter."""
+def discover_movies(certification_lte, genre_ids, min_rating=None, year_from=None, year_to=None, page=1):
+    """Call TMDB discover/movie with an age-rating cap, genre filter, and optional rating/year filters."""
     if not TMDB_API_KEY:
         raise RuntimeError("TMDB_API_KEY is not set")
 
@@ -65,6 +65,12 @@ def discover_movies(certification_lte, genre_ids, page=1):
     }
     if genre_ids:
         params["with_genres"] = "|".join(genre_ids)
+    if min_rating:
+        params["vote_average.gte"] = min_rating
+    if year_from:
+        params["primary_release_date.gte"] = f"{year_from}-01-01"
+    if year_to:
+        params["primary_release_date.lte"] = f"{year_to}-12-31"
 
     resp = requests.get(f"{TMDB_BASE_URL}/discover/movie", params=params, timeout=10)
     resp.raise_for_status()

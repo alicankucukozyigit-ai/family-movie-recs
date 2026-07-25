@@ -6,7 +6,14 @@
     <h1>Picks for {{ selected_names | join(", ") }}</h1>
     <a class="btn-secondary" href="{{ url_for('pick') }}">Try again</a>
   </div>
-  <p class="subtext">{{ mood_label }} · rated {{ age_limit }} or under</p>
+  <p class="subtext">
+    {{ mood_label }} · rated {{ age_limit }} or under
+    {%- if min_rating %} · {{ min_rating }}+ stars{% endif -%}
+    {%- if year_from and year_to %} · {{ year_from }}–{{ year_to }}
+    {%- elif year_from %} · {{ year_from }} onward
+    {%- elif year_to %} · up to {{ year_to }}
+    {%- endif %}
+  </p>
 
   {% if movies %}
     <div class="movie-grid">

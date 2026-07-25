@@ -144,11 +144,19 @@ def pick():
     return render_template("pick.html", members=current_user.members, moods=MOODS)
 
 
+def _safe_year(value):
+    value = (value or "").strip()
+    return value if value.isdigit() and len(value) == 4 else None
+
+
 @app.route("/results", methods=["POST"])
 @login_required
 def results():
     member_ids = request.form.getlist("member_ids")
     mood_key = request.form.get("mood")
+    min_rating = request.form.get("min_rating", "").strip() or None
+    year_from = _safe_year(request.form.get("year_from"))
+    year_to = _safe_year(request.form.get("year_to"))
 
     selected = [m for m in current_user.members if str(m.id) in member_ids]
     if not selected:
@@ -164,7 +172,13 @@ def results():
         favorite_ids.update(m.genre_id_list())
 
     try:
-        raw_movies = discover_movies(certification_lte=age_limit, genre_ids=mood["genres"])
+        raw_movies = discover_movies(
+            certification_lte=age_limit,
+            genre_ids=mood["genres"],
+            min_rating=min_rating,
+            year_from=year_from,
+            year_to=year_to,
+        )
     except RuntimeError:
         flash("Movie search isn't configured yet — missing TMDB_API_KEY.")
         return redirect(url_for("pick"))
@@ -189,6 +203,9 @@ def results():
         age_limit=age_limit,
         mood_label=mood["label"],
         selected_names=[m.name for m in selected],
+        min_rating=min_rating,
+        year_from=year_from,
+        year_to=year_to,
     )
 
 
