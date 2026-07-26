@@ -25,11 +25,21 @@ after creating an account.
 ## Deployment (Render)
 
 1. Push this repo to GitHub.
-2. In Render: New > Blueprint, point at the repo (`render.yaml` defines the
-   web service + free Postgres DB automatically).
-3. Set `TMDB_API_KEY` in the Render dashboard (Environment tab) — not
-   committed anywhere.
-4. Push to `main` auto-deploys.
+2. In Render: New > Blueprint, point at the repo to create the web service
+   (`render.yaml` defines build/start commands).
+3. Separately, create a Postgres database: New > PostgreSQL (Free plan).
+   Copy its **Internal Database URL**.
+4. In the web service's Environment tab, set `DATABASE_URL` to that URL and
+   `TMDB_API_KEY` to your TMDB key — neither is committed anywhere.
+5. Push to `main` auto-deploys.
+
+**Important**: `DATABASE_URL` is intentionally `sync: false` in `render.yaml`
+and the file does *not* declare a `databases:` block. Render's Blueprint
+sync re-links any `fromDatabase`-bound env var on every deploy, which
+previously caused it to silently swap `DATABASE_URL` to a different,
+freshly-empty database on a later sync — wiping all user data without
+warning. Keep it manually set in the dashboard; don't reintroduce a
+`fromDatabase` binding for it.
 
 ## Status
 
